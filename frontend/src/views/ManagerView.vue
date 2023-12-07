@@ -2,6 +2,7 @@
 import BackToIndex from '../components/BackToIndex.vue'
 
 import { ref, onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 
 const disciplines = ref([]);
@@ -43,6 +44,24 @@ const selectedGroupName = computed(() => {
     const group = groups.value.find(g => g.group_id === selectedGroup.value);
     return group ? group.group_name : '';
 });
+
+const route = useRoute();
+const router = useRouter();
+
+const viewAttendance = () => {
+  const selectedDisciplineId = selectedDiscipline.value;
+  const selectedGroupId = selectedGroup.value;
+
+  router.push({
+    name: 'AttendanceView',
+    params: {
+      disciplineId: selectedDisciplineId,
+      groupId: selectedGroupId
+    }
+  });
+
+  console.log("Hello");
+};
 </script>
 
 <template>
@@ -64,15 +83,25 @@ const selectedGroupName = computed(() => {
             </option>
         </select>
         <p>Выбранная группа: {{ selectedGroupName }}</p>
+
+        <!-- Кнопка для перехода к просмотру посещаемости -->
+        <button v-if="selectedDiscipline && selectedGroup" @click="viewAttendance">Просмотр посещаемости</button>
     </div>
 </template>
 
 <style>
 .management-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     padding: 0 10vw;
     width: 100vw;
     height: 100vh;
     background-color: #0f7bb9;
     color: #E4ECF3;
+}
+
+.management-container label, .management-container p {
 }
 </style>
