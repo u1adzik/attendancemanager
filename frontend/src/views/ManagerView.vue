@@ -75,7 +75,6 @@ const viewAttendance = () => {
             </option>
         </select>
         <p>Выбранная дисциплина: {{ selectedDisciplineName }}</p>
-
         <label for="group">Выберите группу:</label>
         <select v-model="selectedGroup" id="group">
             <option v-for="group in groups" :key="group.group_id" :value="group.group_id">
@@ -92,7 +91,7 @@ const viewAttendance = () => {
 <style>
 .management-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     padding: 0 10vw;

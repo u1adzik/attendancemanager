@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ModeView from '../views/ModeView.vue'
 import ManagerView from '../views/ManagerView.vue'
 import EditorView from '../views/EditorView.vue'
-import AttendanceView from '../views/AttendanceView.vue';
+import AttendanceView from '../views/AttendanceView.vue'
+import StudentsView from '../views/StudentsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
     path: '/attendance/:disciplineId/:groupId',
     name: 'AttendanceView',
     component: AttendanceView
+  },
+  {
+    path: '/students/:id',
+    name: 'StudentDetails',
+    component: StudentsView // Используйте компонент, который будет отображать информацию о студенте
   },
   ]
 })

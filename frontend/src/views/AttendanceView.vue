@@ -1,66 +1,73 @@
 <template>
-    <div>
-      <h1>Attendance View</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Student ID</th>
-            <th>Student Name</th>
-            <th>Attendance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="student in students" :key="student.student_id">
-            <td>{{ student.student_id }}</td>
-            <td>{{ student.student_name }}</td>
-            <td>{{ getAttendance(student.student_id) }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="attendance-view">
+    <h1>Посещаемость</h1>
+    <p>Дисциплина: {{ selectedDisciplineName }}</p>
+    <p>Группа: {{ selectedGroupName }}</p>
+
+    <div v-if="attendanceRecords.length === 0">
+      <p>Нет данных о посещаемости для выбранной группы и дисциплины.</p>
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios'
-  export default {
-    data() {
-      return {
-        students: [],
-        attendance: [],
-      };
-    },
-    mounted() {
-      const disciplineId = this.$route.params.disciplineId;
-      const groupId = this.$route.params.groupId;
-  
-      this.fetchStudents(groupId);
-      this.fetchAttendance(disciplineId, groupId);
-    },
-    methods: {
-      async fetchStudents(groupId) {
-        try {
-          const response = await axios.get(`http://127.0.0.1:5000/api/students?group_id=${groupId}`);
-          this.students = response.data;
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      async fetchAttendance(disciplineId, groupId) {
-        try {
-          const response = await axios.get(`http://127.0.0.1:5000/api/attendance?lesson_id=${disciplineId}&group_id=${groupId}`);
-          this.attendance = response.data;
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      getAttendance(studentId) {
-        const studentAttendance = this.attendance.filter(
-          (record) => record.student_id === studentId
-        );
-        const presentCount = studentAttendance.filter((record) => record.present === 1)
-          .length;
-        return `${presentCount}/${studentAttendance.length}`;
-      },
-    },
-  };
-  </script>
+
+    <table v-else>
+      <thead>
+        <tr>
+          <th>Студент</th>
+          <th>Посещение</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="record in attendanceRecords" :key="record.attendance_id">
+          <td>{{ record.student_name }}</td>
+          <td>{{ record.present ? 'Присутствовал' : 'Отсутствовал' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
+
+const route = useRoute();
+
+const selectedDisciplineId = ref(route.params.disciplineId);
+const selectedGroupId = ref(route.params.groupId);
+
+const selectedDisciplineName = ref('');
+const selectedGroupName = ref('');
+
+const attendanceRecords = ref([]);
+
+const fetchAttendance = async () => {
+  try {
+    const disciplineResponse = await axios.get(`http://127.0.0.1:5000/api/disciplines`);
+    const discipline = disciplineResponse.data.find(d => d.discipline_id === selectedDisciplineId.value);
+    selectedDisciplineName.value = discipline ? discipline.discipline_name : '';
+
+    const groupResponse = await axios.get(`http://127.0.0.1:5000/api/groups`);
+    const group = groupResponse.data.find(g => g.group_id === selectedGroupId.value);
+    selectedGroupName.value = group ? group.group_name : '';
+
+    const attendanceResponse = await axios.get(`http://127.0.0.1:5000/api/attendance`);
+    attendanceRecords.value = attendanceResponse.data.filter(record =>
+      record.lesson_id === selectedDisciplineId.value && record.group_id === selectedGroupId.value
+    );
+
+    // Получение имен студентов из других таблиц для удобства отображения
+    attendanceRecords.value.forEach(async record => {
+      const studentResponse = await axios.get(`http://127.0.0.1:5000/api/students/${record.student_id}`);
+      record.student_name = studentResponse.data.student_name;
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+onMounted(fetchAttendance);
+</script>
+
+<style>
+/* Стили для таблицы или других элементов, если необходимо */
+</style>
