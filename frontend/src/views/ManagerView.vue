@@ -1,0 +1,78 @@
+<script setup>
+import BackToIndex from '../components/BackToIndex.vue'
+
+import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
+
+const disciplines = ref([]);
+
+const selectedDiscipline = ref(null);
+
+const fetchDisciplines = async () => {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/api/disciplines');
+        disciplines.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+onMounted(fetchDisciplines);
+
+const selectedDisciplineName = computed(() => {
+    const discipline = disciplines.value.find(d => d.discipline_id === selectedDiscipline.value);
+    return discipline ? discipline.discipline_name : '';
+});
+
+const groups = ref([]);
+
+const selectedGroup = ref(null);
+
+const fetchGroups = async () => {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/api/groups');
+        groups.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+onMounted(fetchGroups);
+
+const selectedGroupName = computed(() => {
+    const group = groups.value.find(g => g.group_id === selectedGroup.value);
+    return group ? group.group_name : '';
+});
+</script>
+
+<template>
+    <BackToIndex />
+
+    <div class="management-container">
+        <label for="discipline">Выберите дисциплину:</label>
+        <select v-model="selectedDiscipline" id="discipline">
+            <option v-for="discipline in disciplines" :key="discipline.discipline_id" :value="discipline.discipline_id">
+                {{ discipline.discipline_name }}
+            </option>
+        </select>
+        <p>Выбранная дисциплина: {{ selectedDisciplineName }}</p>
+
+        <label for="group">Выберите группу:</label>
+        <select v-model="selectedGroup" id="group">
+            <option v-for="group in groups" :key="group.group_id" :value="group.group_id">
+                {{ group.group_name }}
+            </option>
+        </select>
+        <p>Выбранная группа: {{ selectedGroupName }}</p>
+    </div>
+</template>
+
+<style>
+.management-container {
+    padding: 0 10vw;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0f7bb9;
+    color: #E4ECF3;
+}
+</style>

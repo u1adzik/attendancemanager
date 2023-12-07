@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_mysqldb import MySQL
 from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 load_dotenv()
 
@@ -15,7 +17,7 @@ app.config["MYSQL_DB"] = os.getenv("DB_NAME")
 mysql = MySQL(app)
 
 
-@app.route("/students", methods=["GET"])
+@app.route("/api/students", methods=["GET"])
 def get_students():
     try:
         cur = mysql.connection.cursor()
@@ -41,7 +43,7 @@ def get_students():
         return jsonify({"error": str(e)})
 
 
-@app.route("/disciplines", methods=["GET"])
+@app.route("/api/disciplines", methods=["GET"])
 def get_disciplines():
     try:
         cur = mysql.connection.cursor()
@@ -66,7 +68,7 @@ def get_disciplines():
         return jsonify({"error": str(e)})
 
 
-@app.route("/groups", methods=["GET"])
+@app.route("/api/groups", methods=["GET"])
 def get_groups():
     try:
         cur = mysql.connection.cursor()
@@ -88,7 +90,7 @@ def get_groups():
         return jsonify({"error": str(e)})
 
 
-@app.route("/lessons", methods=["GET"])
+@app.route("/api/lessons", methods=["GET"])
 def get_lessons():
     try:
         cur = mysql.connection.cursor()
@@ -115,7 +117,7 @@ def get_lessons():
         return jsonify({"error": str(e)})
 
 
-@app.route("/attendance", methods=["GET"])
+@app.route("/api/attendance", methods=["GET"])
 def get_attendance():
     try:
         cur = mysql.connection.cursor()
